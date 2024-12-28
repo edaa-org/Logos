@@ -1,0 +1,81 @@
+name: Generate EDA² logos
+
+on:
+  push:
+    paths:
+      - '.github/workflows/Pipeline.yml'
+      - '*.py'
+  pull_request:
+    paths:
+      - '.github/workflows/Pipeline.yml'
+      - '*.py'
+  schedule:
+      - cron: '0 0 * * 5'
+  workflow_dispatch:
+
+jobs:
+  Logos:
+    runs-on: ubuntu-latest
+    name: Generate logos
+
+    steps:
+      - name: ⏬ Repository Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+           python -m pip install --disable-pip-version-check -U -r ./requirements.txt
+
+      - name: Generate EDA² logos
+        id: generate
+        run: |
+          mkdir -p ./work/generated
+          mkdir -p ./work/inkscaped
+          mkdir -p ./work/optimized
+
+          python main.py
+
+      - name: Investigate
+        run: |
+          tree -pashC -I .git .
+
+      - name: Run Inkscape
+        uses: addnab/docker-run-action@v3
+        with:
+          image: pytooling/inkscape:latest
+          options: -v ${{ github.workspace }}/work:/work --workdir /work
+          run: |
+            echo "inkscape: $(inkscape --version) ($(which inkscape))"
+
+            for file in ./generated/*.svg; do
+              echo "Converting '$file' ..."
+
+              xvfb-run inkscape --with-gui --batch-process --actions "select-all:all;ObjectToPath;FitCanvasToSelectionOrDrawing;export-filename:'./inkscaped/$(basename "$item")'; export-do;EditUndo;EditUndo;FileClose;FileQuit" "$item"
+            done
+
+      - name: Investigate
+        run: |
+          tree -pashC -I .git .
+
+      - name: Run SVG Optimizer (SVGO)
+        uses: addnab/docker-run-action@v3
+        with:
+          image: pytooling/inkscape:latest
+          options: -v ${{ github.workspace }}/work:/work --workdir /work
+          run: |
+            echo "svgo: $(svgo --version) ($(which svgo))"
+
+            for file in ./inkscaped/*.svg; do
+              echo "Optimizing '$file' ..."
+
+              svgo "$file" -o ./optimized/$(basename "$file")
+            done
+
+      - name: Investigate
+        run: |
+          tree -pashC -I .git .
