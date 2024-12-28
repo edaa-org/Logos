@@ -1,0 +1,9 @@
+# Python cache and object files
+__pycache__/
+*.py[cod]
+
+# PyCharm project files
+/.idea/workspace.xml
+
+# Git files
+!.git*

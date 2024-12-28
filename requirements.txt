@@ -1,1 +1,2 @@
-svgwrite
+pyTooling ~= 8.0
+svgwrite ~= 1.4
