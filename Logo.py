@@ -22,7 +22,7 @@ class Logo:
 class PyEDAALayersLogo(Logo):
 	_levelStack: LevelStack
 
-	def __init__(self, levelStack: LevelStack):
+	def __init__(self, levelStack: LevelStack) -> None:
 		self._levelStack = levelStack
 
 	def _drawRectangles(self, dwg, shades: Tuple[ColorTuple, ...], offset: Nullable[Offset[int]] = None, unit: int = 50):
@@ -33,7 +33,7 @@ class PyEDAALayersLogo(Logo):
 		:param shades: Tuple of 6 double-shades.
 		:param offset:
 		:param unit:
-		:return:
+		:returns:      undocumented
 		"""
 		if offset is None:
 			offset = Offset(0, 0)
@@ -107,7 +107,7 @@ class PyEDAALayersLogo(Logo):
 
 
 class AllPyEDAALayersLogos(PyEDAALayersLogo):
-	def __init__(self, levelStack: LevelStack):
+	def __init__(self, levelStack: LevelStack) -> None:
 		super().__init__(levelStack)
 
 	def _drawPerColor(self, dwg, offset: Nullable[Offset[int]] = None):
